@@ -4,11 +4,13 @@ A simple Model Context Protocol (MCP) server implementation in TypeScript that p
 
 ## Features
 
-- **Addition Tool**: Add two numbers together with robust error handling
+- **Addition Tool**: Add two numbers together with robust error handling  
+- **Latest MCP SDK**: Uses the newest recommended `registerTool()` API patterns (updated 2025)
 - **TypeScript Implementation**: Full type safety and modern JavaScript features
 - **Comprehensive Testing**: Extensive test suite following TDD principles
 - **Error Handling**: Proper validation for edge cases (Infinity, NaN, etc.)
-- **Logging**: Detailed console logging for debugging and monitoring
+- **Enhanced Debugging**: Detailed console logging with improved error tracking and stack traces
+- **Simplified Architecture**: Streamlined server implementation following SDK best practices
 
 ## Installation
 
@@ -41,7 +43,55 @@ Or for development (builds and runs):
 npm run dev
 ```
 
-### Using with MCP Inspector
+### Integration with Claude Desktop
+
+To use this MCP server with Claude Desktop, you need to configure it in your Claude Desktop settings:
+
+#### Step 1: Build the Server
+```bash
+npm run build
+```
+
+#### Step 2: Configure Claude Desktop
+
+**For macOS:**
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+**For Windows:**
+Edit `%APPDATA%/Claude/claude_desktop_config.json`
+
+Add the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "calculator": {
+      "command": "node",
+      "args": ["/absolute/path/to/calculator-mcp/dist/src/calculator-mcp/server.js"],
+      "env": {}
+    }
+  }
+}
+```
+
+**Important:** Replace `/absolute/path/to/calculator-mcp/` with the actual absolute path to your project directory.
+
+#### Step 3: Restart Claude Desktop
+
+After saving the configuration file, restart Claude Desktop completely.
+
+#### Step 4: Verify Integration
+
+Once restarted, Claude Desktop will automatically connect to your MCP server. You can now ask Claude to add numbers and it will use your custom tool:
+
+**Example conversations:**
+- "Can you add 25 and 17 for me?"
+- "What's the sum of 3.14 and 2.86?"
+- "Add these numbers: 1000 + 500"
+
+Claude will use your `addNumbers` tool and return the results in the format you defined.
+
+### Using with MCP Inspector (For Testing)
 
 You can test the server using the MCP Inspector:
 
@@ -145,6 +195,71 @@ Generate test data for various scenarios:
 ```bash
 node dist/scripts/generate-test-data.js
 ```
+
+## Troubleshooting Claude Desktop Integration
+
+### Common Issues
+
+#### 1. MCP Server Crashes After Initialize Message
+- **Solution**: The server has been updated with enhanced error handling and debugging
+- **Check logs**: Run the server manually to see detailed error messages:
+  ```bash
+  node dist/src/calculator-mcp/server.js 2>&1
+  ```
+- **Module issues**: Ensure TypeScript is compiled with correct module settings
+- **Node version**: Requires Node.js 18 or higher
+
+#### 2. MCP Server Not Connecting
+- **Check file paths**: Ensure the path in `claude_desktop_config.json` is absolute and correct
+- **Check Node.js**: Make sure Node.js >= 18 is installed and accessible from command line
+- **Check build**: Ensure you've run `npm run build` and the dist folder exists
+
+#### 3. Tool Not Available in Claude
+- **Restart Claude Desktop**: Always restart completely after config changes
+- **Check logs**: Look for error messages in Claude Desktop's developer console
+- **Verify config**: Ensure the JSON syntax in config file is valid
+
+#### 4. Permission Issues
+- **File permissions**: Ensure the server file is executable
+- **Path permissions**: Make sure Claude Desktop can access the project directory
+
+#### 5. Debugging Steps
+1. Test the server startup manually:
+   ```bash
+   node dist/src/calculator-mcp/server.js 2>&1
+   ```
+   You should see:
+   ```
+   Calculator MCP Server: Starting initialization...
+   Calculator MCP Server: Instance created
+   Calculator MCP Server: Tool registered
+   Calculator MCP Server: Creating transport...
+   Calculator MCP Server: Connecting to transport...
+   Calculator MCP Server: Successfully started and listening
+   ```
+2. Check Node.js version: `node --version` (must be >= 18)
+3. Run the debug script to verify imports:
+   ```bash
+   node scripts/debug-imports.js
+   ```
+4. Test with MCP Inspector first to verify the server works
+5. Check Claude Desktop logs for connection errors
+
+### Getting Your Absolute Path
+
+**On macOS/Linux:**
+```bash
+cd /path/to/calculator-mcp
+pwd
+```
+
+**On Windows:**
+```cmd
+cd C:\path\to\calculator-mcp
+echo %cd%
+```
+
+Use this full path in your Claude Desktop configuration.
 
 ## Configuration
 
