@@ -1,0 +1,88 @@
+{
+  "valid_additions": [
+    {
+      "description": "Simple positive numbers",
+      "input": {"num1": 5.5, "num2": 3.2},
+      "expected_result": 8.7
+    },
+    {
+      "description": "Negative numbers",
+      "input": {"num1": -5.5, "num2": -3.2},
+      "expected_result": -8.7
+    },
+    {
+      "description": "Mixed positive and negative",
+      "input": {"num1": 10, "num2": -3},
+      "expected_result": 7
+    },
+    {
+      "description": "Zero values",
+      "input": {"num1": 0, "num2": 0},
+      "expected_result": 0
+    },
+    {
+      "description": "Zero with positive",
+      "input": {"num1": 0, "num2": 5.5},
+      "expected_result": 5.5
+    },
+    {
+      "description": "Zero with negative",
+      "input": {"num1": 0, "num2": -5.5},
+      "expected_result": -5.5
+    },
+    {
+      "description": "Large numbers",
+      "input": {"num1": 1000000, "num2": 2000000},
+      "expected_result": 3000000
+    },
+    {
+      "description": "Decimal precision",
+      "input": {"num1": 0.1, "num2": 0.2},
+      "expected_result": 0.3
+    },
+    {
+      "description": "Very small numbers",
+      "input": {"num1": 0.0001, "num2": 0.0002},
+      "expected_result": 0.0003
+    },
+    {
+      "description": "Integer addition",
+      "input": {"num1": 42, "num2": 58},
+      "expected_result": 100
+    }
+  ],
+  "error_cases": [
+    {
+      "description": "Infinity value",
+      "input": {"num1": "Infinity", "num2": 5.5},
+      "expected_error": "finite numbers"
+    },
+    {
+      "description": "Negative infinity",
+      "input": {"num1": "-Infinity", "num2": 5.5},
+      "expected_error": "finite numbers"
+    },
+    {
+      "description": "NaN value",
+      "input": {"num1": "NaN", "num2": 5.5},
+      "expected_error": "finite numbers"
+    }
+  ],
+  "edge_cases": [
+    {
+      "description": "Very large positive numbers",
+      "input": {"num1": 1e15, "num2": 2e15},
+      "expected_result": 3e15
+    },
+    {
+      "description": "Very large negative numbers",
+      "input": {"num1": -1e15, "num2": -2e15},
+      "expected_result": -3e15
+    },
+    {
+      "description": "Scientific notation",
+      "input": {"num1": 1.5e-10, "num2": 2.5e-10},
+      "expected_result": 4e-10
+    }
+  ]
+}

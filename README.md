@@ -1,13 +1,15 @@
 # Calculator MCP Server
 
-A simple Model Context Protocol (MCP) server implementation in TypeScript that provides addition functionality for two numbers.
+A simple Model Context Protocol (MCP) server implementation in both TypeScript and Python that provides addition functionality for two numbers.
 
 ## Features
 
 - **Addition Tool**: Add two numbers together with robust error handling  
-- **Latest MCP SDK**: Uses the newest recommended `registerTool()` API patterns (updated 2025)
+- **Latest MCP SDK**: Uses the newest recommended API patterns (updated 2025)
+- **Dual Implementation**: Available in both TypeScript and Python
 - **TypeScript Implementation**: Full type safety and modern JavaScript features
-- **Comprehensive Testing**: Extensive test suite following TDD principles
+- **Python Implementation**: Async/await support with Pydantic validation
+- **Comprehensive Testing**: Extensive test suite following TDD principles for both implementations
 - **Error Handling**: Proper validation for edge cases (Infinity, NaN, etc.)
 - **Enhanced Debugging**: Detailed console logging with improved error tracking and stack traces
 - **Simplified Architecture**: Streamlined server implementation following SDK best practices
@@ -20,6 +22,8 @@ git clone <repository-url>
 cd calculator-mcp
 ```
 
+### TypeScript Server
+
 2. Install dependencies:
 ```bash
 npm install
@@ -30,9 +34,23 @@ npm install
 npm run build
 ```
 
+### Python Server
+
+2. Create a virtual environment and install dependencies:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -e .
+```
+
+Or for development:
+```bash
+pip install -e ".[dev]"
+```
+
 ## Usage
 
-### Starting the Server
+### Starting the TypeScript Server
 
 ```bash
 npm start
@@ -41,6 +59,18 @@ npm start
 Or for development (builds and runs):
 ```bash
 npm run dev
+```
+
+### Starting the Python Server
+
+```bash
+# With virtual environment activated
+calculator-mcp-python
+```
+
+Or directly:
+```bash
+python src/calculator_mcp_python/server.py
 ```
 
 ### Integration with Claude Desktop
@@ -62,12 +92,26 @@ Edit `%APPDATA%/Claude/claude_desktop_config.json`
 
 Add the following configuration:
 
+**For TypeScript Server:**
 ```json
 {
   "mcpServers": {
-    "calculator": {
+    "calculator-ts": {
       "command": "node",
       "args": ["/absolute/path/to/calculator-mcp/dist/src/calculator-mcp/server.js"],
+      "env": {}
+    }
+  }
+}
+```
+
+**For Python Server:**
+```json
+{
+  "mcpServers": {
+    "calculator-py": {
+      "command": "python",
+      "args": ["/absolute/path/to/calculator-mcp/src/calculator_mcp_python/server.py"],
       "env": {}
     }
   }
@@ -156,45 +200,74 @@ Error responses include:
 ```
 calculator-mcp/
 ├── src/
-│   └── calculator-mcp/
-│       └── server.ts          # Main MCP server implementation
+│   ├── calculator-mcp/
+│   │   └── server.ts          # TypeScript MCP server implementation
+│   └── calculator_mcp_python/
+│       ├── __init__.py
+│       └── server.py          # Python MCP server implementation
 ├── tests/
-│   └── server.test.ts         # Comprehensive test suite
+│   ├── server.test.ts         # TypeScript test suite
+│   └── python/
+│       ├── __init__.py
+│       └── test_server.py     # Python test suite
 ├── scripts/
-│   └── generate-test-data.ts  # Test data generation utilities
+│   ├── generate-test-data.ts  # TypeScript test data generation
+│   └── test_python_server.py  # Python server testing script
+├── test_data/
+│   └── python_test_cases.json # Python test data
 ├── dist/                      # Compiled JavaScript output
-├── package.json
+├── package.json               # TypeScript dependencies
+├── pyproject.toml             # Python dependencies
 ├── tsconfig.json
 └── README.md
 ```
 
 ### Available Scripts
 
+**TypeScript:**
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm start` - Run the compiled server
 - `npm run dev` - Build and run in development mode
 - `npm test` - Run the test suite
 - `npm run clean` - Remove compiled files
 
+**Python:**
+- `python -m pytest tests/python/` - Run Python test suite
+- `python scripts/test_python_server.py` - Run Python server debug script
+
 ### Testing
 
-The project includes comprehensive tests covering:
+The project includes comprehensive tests for both implementations covering:
 
 - **Valid Operations**: Positive/negative numbers, decimals, zeros, large numbers
 - **Error Cases**: Infinity, NaN, invalid inputs
 - **Edge Cases**: Floating point precision, safe integer limits
 
-Run tests with:
+**Run TypeScript tests:**
 ```bash
 npm test
 ```
 
+**Run Python tests:**
+```bash
+# With virtual environment activated
+python -m pytest tests/python/ -v
+```
+
+**Test Python server functionality:**
+```bash
+python scripts/test_python_server.py
+```
+
 ### Test Data Generation
 
-Generate test data for various scenarios:
+**TypeScript test data:**
 ```bash
 node dist/scripts/generate-test-data.js
 ```
+
+**Python test data:**
+Test cases are stored in `test_data/python_test_cases.json`
 
 ## Troubleshooting Claude Desktop Integration
 
