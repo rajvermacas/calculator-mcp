@@ -1,0 +1,28 @@
+{
+  "name": "calculator-mcp",
+  "version": "1.0.0",
+  "description": "A simple MCP server for adding two numbers",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/calculator-mcp/server.js",
+    "dev": "tsc && node dist/src/calculator-mcp/server.js",
+    "test": "npm run build && node --test dist/tests/server.test.js",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["mcp", "calculator", "typescript", "addition"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
