@@ -499,9 +499,17 @@ Console logging is implemented throughout:
 MIT License
 
 # Note
+## Start mcp inspector
+npx @modelcontextprotocol/inspector - From the host windows machine
+
+## Python remote mcp server
 source venv/bin/activate
 calculator-mcp-python-remote
 
 source venv/bin/activate && python src/calculator_mcp_python/remote_server.py --transport sse --port 8001 &
 
-npx @modelcontextprotocol/inspector - From the host windows machine
+## Typescript local mcp server
+node dist/src/calculator-mcp/server.js
+
+## Typescript local mcp server
+python src/calculator_mcp_python/server.py
