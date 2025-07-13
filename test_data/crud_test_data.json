@@ -1,0 +1,250 @@
+{
+  "test_scenarios": {
+    "create_operations": [
+      {
+        "description": "Create user with valid data",
+        "resource_type": "users",
+        "data": {
+          "name": "John Doe",
+          "email": "john.doe@example.com",
+          "age": 30,
+          "department": "Engineering"
+        },
+        "expected_status": 201
+      },
+      {
+        "description": "Create product with minimal data",
+        "resource_type": "products",
+        "data": {
+          "name": "Widget",
+          "price": 29.99
+        },
+        "expected_status": 201
+      },
+      {
+        "description": "Create order with complex data",
+        "resource_type": "orders",
+        "data": {
+          "customer_id": "123",
+          "items": [
+            {"product_id": "456", "quantity": 2, "price": 29.99},
+            {"product_id": "789", "quantity": 1, "price": 59.99}
+          ],
+          "total": 119.97,
+          "shipping_address": {
+            "street": "123 Main St",
+            "city": "Anytown",
+            "state": "CA",
+            "zip": "12345"
+          }
+        },
+        "expected_status": 201
+      }
+    ],
+    "read_operations": [
+      {
+        "description": "Read all users",
+        "resource_type": "users",
+        "resource_id": null,
+        "expected_status": 200
+      },
+      {
+        "description": "Read specific user by ID",
+        "resource_type": "users",
+        "resource_id": "123",
+        "expected_status": 200
+      },
+      {
+        "description": "Read specific product by ID",
+        "resource_type": "products",
+        "resource_id": "456",
+        "expected_status": 200
+      },
+      {
+        "description": "Read specific order by ID",
+        "resource_type": "orders",
+        "resource_id": "789",
+        "expected_status": 200
+      }
+    ],
+    "update_operations": [
+      {
+        "description": "Update user information",
+        "resource_type": "users",
+        "resource_id": "123",
+        "data": {
+          "name": "Jane Doe",
+          "email": "jane.doe@example.com",
+          "age": 31,
+          "department": "Product Management"
+        },
+        "expected_status": 200
+      },
+      {
+        "description": "Update product price",
+        "resource_type": "products",
+        "resource_id": "456",
+        "data": {
+          "name": "Widget Pro",
+          "price": 39.99,
+          "description": "Enhanced widget with new features"
+        },
+        "expected_status": 200
+      },
+      {
+        "description": "Update order status",
+        "resource_type": "orders",
+        "resource_id": "789",
+        "data": {
+          "status": "shipped",
+          "tracking_number": "TRK123456789",
+          "estimated_delivery": "2024-01-15"
+        },
+        "expected_status": 200
+      }
+    ],
+    "delete_operations": [
+      {
+        "description": "Delete user by ID",
+        "resource_type": "users",
+        "resource_id": "123",
+        "expected_status": 204
+      },
+      {
+        "description": "Delete product by ID",
+        "resource_type": "products",
+        "resource_id": "456",
+        "expected_status": 204
+      },
+      {
+        "description": "Delete order by ID",
+        "resource_type": "orders",
+        "resource_id": "789",
+        "expected_status": 200
+      }
+    ]
+  },
+  "error_scenarios": [
+    {
+      "description": "Missing environment variable",
+      "operation": "create",
+      "resource_type": "users",
+      "data": {"name": "Test"},
+      "environment": {},
+      "expected_error": "REST_API_BASE_URL environment variable is not set"
+    },
+    {
+      "description": "Empty resource type",
+      "operation": "create",
+      "resource_type": "",
+      "data": {"name": "Test"},
+      "expected_error": "resource_type must be a non-empty string"
+    },
+    {
+      "description": "Invalid data type for create",
+      "operation": "create",
+      "resource_type": "users",
+      "data": "invalid_data",
+      "expected_error": "data must be a dictionary"
+    },
+    {
+      "description": "Empty resource ID for update",
+      "operation": "update",
+      "resource_type": "users",
+      "resource_id": "",
+      "data": {"name": "Test"},
+      "expected_error": "resource_id must be a non-empty string"
+    },
+    {
+      "description": "Empty resource ID for delete",
+      "operation": "delete",
+      "resource_type": "users",
+      "resource_id": "",
+      "expected_error": "resource_id must be a non-empty string"
+    }
+  ],
+  "mock_responses": {
+    "successful_create": {
+      "status_code": 201,
+      "data": {
+        "id": "new_id_123",
+        "created_at": "2024-01-01T00:00:00Z",
+        "status": "active"
+      }
+    },
+    "successful_read_single": {
+      "status_code": 200,
+      "data": {
+        "id": "123",
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "created_at": "2024-01-01T00:00:00Z"
+      }
+    },
+    "successful_read_multiple": {
+      "status_code": 200,
+      "data": [
+        {
+          "id": "123",
+          "name": "John Doe",
+          "email": "john.doe@example.com"
+        },
+        {
+          "id": "456",
+          "name": "Jane Smith",
+          "email": "jane.smith@example.com"
+        }
+      ]
+    },
+    "successful_update": {
+      "status_code": 200,
+      "data": {
+        "id": "123",
+        "name": "Jane Doe",
+        "email": "jane.doe@example.com",
+        "updated_at": "2024-01-01T12:00:00Z"
+      }
+    },
+    "successful_delete": {
+      "status_code": 204,
+      "data": null
+    },
+    "successful_delete_with_body": {
+      "status_code": 200,
+      "data": {
+        "id": "123",
+        "deleted": true,
+        "deleted_at": "2024-01-01T12:00:00Z"
+      }
+    },
+    "not_found_error": {
+      "status_code": 404,
+      "data": {
+        "error": "Resource not found",
+        "message": "The requested resource could not be found"
+      }
+    },
+    "validation_error": {
+      "status_code": 400,
+      "data": {
+        "error": "Validation failed",
+        "details": {
+          "email": ["Invalid email format"],
+          "age": ["Must be between 1 and 120"]
+        }
+      }
+    },
+    "server_error": {
+      "status_code": 500,
+      "data": {
+        "error": "Internal server error",
+        "message": "An unexpected error occurred"
+      }
+    }
+  },
+  "environment_variables": {
+    "test_api_url": "https://api.test.example.com",
+    "staging_api_url": "https://api.staging.example.com",
+    "production_api_url": "https://api.example.com"
+  }
+}
