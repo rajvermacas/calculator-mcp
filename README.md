@@ -504,4 +504,4 @@ calculator-mcp-python-remote
 
 source venv/bin/activate && python src/calculator_mcp_python/remote_server.py --transport sse --port 8001 &
 
-npx @modelcontextprotocol/inspector
+npx @modelcontextprotocol/inspector - From the host windows machine
