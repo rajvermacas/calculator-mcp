@@ -4,7 +4,8 @@
       "WebFetch(domain:www.freecodecamp.org)",
       "Bash(apt-get:*)",
       "Bash(apt-get install:*)",
-      "Bash(source venv/bin/activate)"
+      "Bash(source venv/bin/activate)",
+      "Bash(export REST_API_BASE_URL=http://localhost:8001)"
     ],
     "deny": []
   }

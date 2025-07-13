@@ -42,6 +42,7 @@ dev = [
 [project.scripts]
 calculator-mcp-python = "calculator_mcp_python.server:main"
 calculator-mcp-python-remote = "calculator_mcp_python.remote_server:main"
+calculator-mcp-mock-api = "calculator_mcp_python.mock_api_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

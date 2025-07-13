@@ -1,0 +1,318 @@
+{
+  "description": "Sample API requests for testing the mock API server endpoints",
+  "base_url": "http://localhost:8001",
+  "endpoints": {
+    "health": {
+      "method": "GET",
+      "url": "/health",
+      "description": "Health check endpoint",
+      "expected_response": {
+        "status": "healthy",
+        "service": "Calculator MCP Mock API Server",
+        "timestamp": "2024-01-01T00:00:00Z"
+      }
+    }
+  },
+  "crud_operations": {
+    "users": {
+      "create": {
+        "method": "POST",
+        "url": "/users",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "John Doe",
+          "email": "john.doe@example.com",
+          "age": 30,
+          "department": "Engineering",
+          "role": "Senior Developer"
+        },
+        "expected_response": {
+          "operation": "create",
+          "resource_type": "users",
+          "status_code": 201,
+          "url": "http://localhost:8001/users",
+          "data": {
+            "id": "generated-id",
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "age": 30,
+            "department": "Engineering",
+            "role": "Senior Developer",
+            "created_at": "timestamp",
+            "updated_at": "timestamp",
+            "status": "active",
+            "created": true
+          },
+          "message": "Successfully created users resource"
+        }
+      },
+      "read_all": {
+        "method": "GET",
+        "url": "/users",
+        "description": "Read all users",
+        "expected_response": {
+          "operation": "read",
+          "resource_type": "users",
+          "resource_id": null,
+          "status_code": 200,
+          "url": "http://localhost:8001/users",
+          "data": [
+            {
+              "id": "user-1",
+              "name": "John Doe",
+              "email": "john.doe@example.com",
+              "age": 30,
+              "department": "Engineering"
+            }
+          ],
+          "message": "Successfully read users resources"
+        }
+      },
+      "read_by_id": {
+        "method": "GET",
+        "url": "/users/user-123",
+        "description": "Read specific user by ID",
+        "expected_response": {
+          "operation": "read",
+          "resource_type": "users",
+          "resource_id": "user-123",
+          "status_code": 200,
+          "url": "http://localhost:8001/users/user-123",
+          "data": {
+            "id": "user-123",
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "age": 30,
+            "department": "Engineering",
+            "created_at": "timestamp",
+            "updated_at": "timestamp",
+            "status": "active"
+          },
+          "message": "Successfully read users resource with ID user-123"
+        }
+      },
+      "update": {
+        "method": "PUT",
+        "url": "/users/user-123",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "Jane Doe",
+          "email": "jane.doe@example.com",
+          "department": "Product Management",
+          "role": "Product Manager"
+        },
+        "expected_response": {
+          "operation": "update",
+          "resource_type": "users",
+          "resource_id": "user-123",
+          "status_code": 200,
+          "url": "http://localhost:8001/users/user-123",
+          "data": {
+            "id": "user-123",
+            "name": "Jane Doe",
+            "email": "jane.doe@example.com",
+            "department": "Product Management",
+            "role": "Product Manager",
+            "updated_at": "timestamp",
+            "updated": true
+          },
+          "message": "Successfully updated users resource with ID user-123"
+        }
+      },
+      "delete": {
+        "method": "DELETE",
+        "url": "/users/user-123",
+        "expected_response": {
+          "operation": "delete",
+          "resource_type": "users",
+          "resource_id": "user-123",
+          "status_code": 200,
+          "url": "http://localhost:8001/users/user-123",
+          "data": {
+            "deleted": true,
+            "id": "user-123",
+            "deleted_at": "timestamp"
+          },
+          "message": "Successfully deleted users resource with ID user-123"
+        }
+      }
+    },
+    "products": {
+      "create": {
+        "method": "POST",
+        "url": "/products",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "Wireless Headphones",
+          "description": "High-quality noise-canceling wireless headphones",
+          "price": 199.99,
+          "category": "Electronics",
+          "brand": "TechCorp",
+          "sku": "WH-1000XM5"
+        },
+        "expected_response": {
+          "operation": "create",
+          "resource_type": "products",
+          "status_code": 201,
+          "data": {
+            "id": "generated-id",
+            "name": "Wireless Headphones",
+            "description": "High-quality noise-canceling wireless headphones",
+            "price": 199.99,
+            "category": "Electronics",
+            "brand": "TechCorp",
+            "sku": "WH-1000XM5",
+            "in_stock": true,
+            "created": true
+          }
+        }
+      },
+      "read_all": {
+        "method": "GET",
+        "url": "/products",
+        "expected_response": {
+          "operation": "read",
+          "resource_type": "products",
+          "resource_id": null,
+          "data": [
+            {
+              "id": "product-1",
+              "name": "Sample Product",
+              "price": 29.99,
+              "category": "Electronics"
+            }
+          ]
+        }
+      },
+      "update": {
+        "method": "PUT",
+        "url": "/products/product-123",
+        "body": {
+          "name": "Updated Product Name",
+          "price": 249.99,
+          "description": "Updated product description with new features"
+        }
+      }
+    },
+    "orders": {
+      "create": {
+        "method": "POST",
+        "url": "/orders",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "customer_id": "customer-456",
+          "items": [
+            {
+              "product_id": "product-123",
+              "quantity": 2,
+              "price": 29.99
+            },
+            {
+              "product_id": "product-456",
+              "quantity": 1,
+              "price": 59.99
+            }
+          ],
+          "shipping_address": {
+            "street": "123 Main St",
+            "city": "Anytown",
+            "state": "CA",
+            "zip": "12345",
+            "country": "USA"
+          },
+          "payment_method": "credit_card",
+          "total": 119.97
+        },
+        "expected_response": {
+          "operation": "create",
+          "resource_type": "orders",
+          "status_code": 201,
+          "data": {
+            "id": "generated-id",
+            "customer_id": "customer-456",
+            "items": [
+              {
+                "product_id": "product-123",
+                "quantity": 2,
+                "price": 29.99
+              }
+            ],
+            "total": 119.97,
+            "status": "pending",
+            "created": true
+          }
+        }
+      },
+      "update": {
+        "method": "PUT",
+        "url": "/orders/order-789",
+        "body": {
+          "status": "shipped",
+          "tracking_number": "TRK123456789",
+          "estimated_delivery": "2024-01-15",
+          "shipped_at": "2024-01-10T10:00:00Z"
+        }
+      }
+    }
+  },
+  "curl_examples": {
+    "health_check": "curl -X GET http://localhost:8001/health",
+    "create_user": "curl -X POST http://localhost:8001/users -H 'Content-Type: application/json' -d '{\"name\": \"John Doe\", \"email\": \"john@example.com\"}'",
+    "read_users": "curl -X GET http://localhost:8001/users",
+    "read_user_by_id": "curl -X GET http://localhost:8001/users/user-123",
+    "update_user": "curl -X PUT http://localhost:8001/users/user-123 -H 'Content-Type: application/json' -d '{\"name\": \"Jane Doe\", \"department\": \"Marketing\"}'",
+    "delete_user": "curl -X DELETE http://localhost:8001/users/user-123",
+    "create_product": "curl -X POST http://localhost:8001/products -H 'Content-Type: application/json' -d '{\"name\": \"Widget\", \"price\": 29.99}'",
+    "create_order": "curl -X POST http://localhost:8001/orders -H 'Content-Type: application/json' -d '{\"customer_id\": \"123\", \"total\": 99.99}'"
+  },
+  "testing_scenarios": [
+    {
+      "name": "Basic CRUD workflow",
+      "description": "Test complete CRUD lifecycle for a user",
+      "steps": [
+        "POST /users - Create new user",
+        "GET /users - List all users",
+        "GET /users/{id} - Read specific user",
+        "PUT /users/{id} - Update user",
+        "DELETE /users/{id} - Delete user"
+      ]
+    },
+    {
+      "name": "Multiple resource types",
+      "description": "Test different resource types work independently",
+      "steps": [
+        "POST /users - Create user",
+        "POST /products - Create product", 
+        "POST /orders - Create order",
+        "GET /users - Verify users endpoint",
+        "GET /products - Verify products endpoint",
+        "GET /orders - Verify orders endpoint"
+      ]
+    },
+    {
+      "name": "Schema validation",
+      "description": "Verify response schemas match MCP tool outputs exactly",
+      "validation_points": [
+        "Response contains all required fields",
+        "Field types match expected types",
+        "Status codes are correct",
+        "Messages follow expected format",
+        "Data structure matches expectations"
+      ]
+    }
+  ],
+  "integration_notes": {
+    "mcp_compatibility": "All responses match the exact schema used by MCP CRUD tools",
+    "dummy_data": "Server generates realistic dummy data for all operations",
+    "no_persistence": "No actual data persistence - all operations return mock success responses",
+    "environment_variable": "Set REST_API_BASE_URL=http://localhost:8001 to test MCP tools against this server"
+  }
+}
