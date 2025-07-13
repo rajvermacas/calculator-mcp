@@ -3,7 +3,8 @@
     "allow": [
       "WebFetch(domain:www.freecodecamp.org)",
       "Bash(apt-get:*)",
-      "Bash(apt-get install:*)"
+      "Bash(apt-get install:*)",
+      "Bash(source venv/bin/activate)"
     ],
     "deny": []
   }

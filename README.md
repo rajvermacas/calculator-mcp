@@ -497,3 +497,11 @@ Console logging is implemented throughout:
 ## License
 
 MIT License
+
+# Note
+source venv/bin/activate
+calculator-mcp-python-remote
+
+source venv/bin/activate && python src/calculator_mcp_python/remote_server.py --transport sse --port 8001 &
+
+npx @modelcontextprotocol/inspector
