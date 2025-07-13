@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:www.freecodecamp.org)"
+      "WebFetch(domain:www.freecodecamp.org)",
+      "Bash(apt-get:*)",
+      "Bash(apt-get install:*)"
     ],
     "deny": []
   }

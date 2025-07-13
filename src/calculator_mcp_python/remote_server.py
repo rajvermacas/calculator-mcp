@@ -13,9 +13,7 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from mcp.server.fastmcp import FastMCP
-from mcp.server.sse import SseServerTransport
 from mcp.server.stdio import stdio_server
-from sse_starlette.sse import EventSourceResponse
 
 
 # Configure logging for debugging
@@ -135,36 +133,8 @@ def create_fastapi_app(mcp_server: FastMCP) -> FastAPI:
         """Health check endpoint."""
         return {"status": "healthy", "server": "calculator-mcp-remote"}
     
-    @app.get("/sse")
-    async def sse_endpoint():
-        """SSE endpoint for MCP communication."""
-        logger.info("SSE connection established")
-        
-        async def event_stream():
-            """Generate SSE events for MCP communication."""
-            try:
-                transport = SseServerTransport("/sse")
-                
-                async with mcp_server.server.create_initialization_options() as init_options:
-                    async with transport.serve(
-                        mcp_server.server,
-                        init_options
-                    ) as session:
-                        logger.info("MCP SSE session started")
-                        async for message in session:
-                            yield {
-                                "event": "message",
-                                "data": json.dumps(message)
-                            }
-                            
-            except Exception as error:
-                logger.error(f"SSE stream error: {error}")
-                yield {
-                    "event": "error", 
-                    "data": json.dumps({"error": str(error)})
-                }
-        
-        return EventSourceResponse(event_stream())
+    # Mount FastMCP's built-in SSE app instead of custom implementation
+    app.mount("/sse", mcp_server.sse_app())
     
     return app
 
@@ -182,6 +152,22 @@ async def run_stdio_server():
         logger.info("Server stopped by user")
     except Exception as error:
         logger.error(f"Stdio server error: {error}")
+        sys.exit(1)
+
+
+def run_sse_server_simple():
+    """Run the server using FastMCP's built-in SSE capabilities."""
+    logger.info(f"Starting Calculator MCP Remote Server (FastMCP SSE)")
+    
+    mcp_server = create_mcp_server()
+    
+    try:
+        # Use FastMCP's native SSE server
+        mcp_server.run(transport='sse')
+    except KeyboardInterrupt:
+        logger.info("Remote server stopped by user")
+    except Exception as error:
+        logger.error(f"Remote server error: {error}")
         sys.exit(1)
 
 
@@ -257,8 +243,8 @@ def main():
     try:
         if args.transport == "stdio":
             asyncio.run(run_stdio_server())
-        else:  # http or sse (both use HTTP server with SSE endpoint)
-            run_http_server(args.host, args.port)
+        else:  # http or sse (use FastMCP's native SSE server)
+            run_sse_server_simple()
             
     except Exception as error:
         logger.error(f"Server startup error: {error}")
