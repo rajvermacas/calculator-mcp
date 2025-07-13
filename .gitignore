@@ -9,6 +9,7 @@ pnpm-debug.log*
 dist/
 build/
 *.tsbuildinfo
+*.egg-info/
 
 # Environment variables
 .env
@@ -56,3 +57,6 @@ temp/
 
 # Optional eslint cache
 .eslintcache
+
+venv/
+*.pyc

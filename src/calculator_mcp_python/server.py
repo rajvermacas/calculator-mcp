@@ -81,7 +81,8 @@ def addNumbers(num1: float, num2: float) -> str:
         return json.dumps(error_data, indent=2)
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for the stdio MCP server."""
     # Set up process error handlers
     def handle_exception(exc_type, exc_value, exc_traceback):
         """Handle uncaught exceptions."""
@@ -105,3 +106,7 @@ if __name__ == "__main__":
     except Exception as error:
         logger.error(f"Top-level error: {error}")
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

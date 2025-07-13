@@ -63,6 +63,8 @@ npm run dev
 
 ### Starting the Python Server
 
+#### Local Server (stdio transport)
+
 ```bash
 # With virtual environment activated
 calculator-mcp-python
@@ -72,6 +74,38 @@ Or directly:
 ```bash
 python src/calculator_mcp_python/server.py
 ```
+
+#### Remote Server (HTTP/SSE transport)
+
+```bash
+# With virtual environment activated
+calculator-mcp-python-remote
+```
+
+Or directly:
+```bash
+python src/calculator_mcp_python/remote_server.py
+```
+
+**Remote Server Options:**
+```bash
+# Start on default host and port (localhost:8000)
+calculator-mcp-python-remote
+
+# Start with custom host and port
+calculator-mcp-python-remote --host 0.0.0.0 --port 3000
+
+# Start with stdio transport (same as local server)
+calculator-mcp-python-remote --transport stdio
+
+# Start with different log level
+calculator-mcp-python-remote --log-level DEBUG
+```
+
+The remote server will be accessible at:
+- **Root**: `http://localhost:8000/` - Server information
+- **Health**: `http://localhost:8000/health` - Health check
+- **SSE Endpoint**: `http://localhost:8000/sse` - MCP communication endpoint
 
 ### Integration with Claude Desktop
 
@@ -105,7 +139,7 @@ Add the following configuration:
 }
 ```
 
-**For Python Server:**
+**For Python Local Server (stdio):**
 ```json
 {
   "mcpServers": {
@@ -117,6 +151,23 @@ Add the following configuration:
   }
 }
 ```
+
+**For Python Remote Server (via mcp-remote):**
+```json
+{
+  "mcpServers": {
+    "calculator-py-remote": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:8000/sse"],
+      "env": {}
+    }
+  }
+}
+```
+
+**Note**: For the remote server configuration, you need to:
+1. Start the remote server first: `calculator-mcp-python-remote`
+2. Then restart Claude Desktop to connect to the running remote server
 
 **Important:** Replace `/absolute/path/to/calculator-mcp/` with the actual absolute path to your project directory.
 
@@ -148,6 +199,72 @@ This will open a web interface at `http://localhost:4000/sse` where you can:
 2. Test the `addNumbers` tool
 3. View tool responses
 
+### Using the Remote Server
+
+#### Testing with MCP Tools
+
+You can test the remote server using MCP tools:
+
+```bash
+# Install MCP tools (if not already installed)
+npm install -g @modelcontextprotocol/tools
+
+# Test the remote server
+mcp tools http://localhost:8000/sse
+
+# Call the addNumbers tool
+mcp call addNumbers --params '{"num1":5,"num2":3}' http://localhost:8000/sse
+```
+
+#### Testing with mcp-remote
+
+```bash
+# Test connection to remote server
+npx mcp-remote http://localhost:8000/sse
+
+# Use with Claude Desktop (add to config)
+npx -y mcp-remote http://localhost:8000/sse
+```
+
+#### Remote Server Deployment
+
+**Development Deployment:**
+```bash
+# Start server on localhost
+calculator-mcp-python-remote --host localhost --port 8000
+```
+
+**Production Deployment:**
+```bash
+# Start server accessible from any IP
+calculator-mcp-python-remote --host 0.0.0.0 --port 8000
+
+# With custom configuration
+calculator-mcp-python-remote \
+  --host 0.0.0.0 \
+  --port 3000 \
+  --log-level INFO
+```
+
+**Docker Deployment (Optional):**
+Create a `Dockerfile`:
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY . .
+RUN pip install -e .
+
+EXPOSE 8000
+CMD ["calculator-mcp-python-remote", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+**Security Considerations:**
+- The server includes CORS headers for remote access
+- For production, configure specific allowed origins in CORS settings
+- Consider using HTTPS in production environments
+- Implement authentication if needed for your use case
+
 ### Tool Usage
 
 The server provides one tool:
@@ -168,13 +285,24 @@ The server provides one tool:
 }
 ```
 
-**Example Output**:
+**Example Output (Local Server):**
 ```json
 {
   "operation": "addition",
   "operands": [5, 3],
   "result": 8,
   "message": "The sum of 5 and 3 is 8"
+}
+```
+
+**Example Output (Remote Server):**
+```json
+{
+  "operation": "addition", 
+  "operands": [5, 3],
+  "result": 8,
+  "message": "The sum of 5 and 3 is 8",
+  "server_type": "remote"
 }
 ```
 

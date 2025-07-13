@@ -1,0 +1,166 @@
+{
+  "remote_server_test_cases": {
+    "valid_operations": [
+      {
+        "name": "positive_numbers",
+        "input": {"num1": 5.5, "num2": 3.2},
+        "expected_result": 8.7,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "negative_numbers", 
+        "input": {"num1": -10.5, "num2": -7.3},
+        "expected_result": -17.8,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "mixed_positive_negative",
+        "input": {"num1": 15.7, "num2": -8.2},
+        "expected_result": 7.5,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "zero_values",
+        "input": {"num1": 0, "num2": 42.5},
+        "expected_result": 42.5,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "both_zero",
+        "input": {"num1": 0, "num2": 0},
+        "expected_result": 0,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "integer_values",
+        "input": {"num1": 100, "num2": 200},
+        "expected_result": 300,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "decimal_precision",
+        "input": {"num1": 0.1, "num2": 0.2},
+        "expected_result": 0.30000000000000004,
+        "expected_operation": "addition",
+        "expected_server_type": "remote",
+        "note": "Floating point precision test"
+      },
+      {
+        "name": "large_numbers",
+        "input": {"num1": 1000000000000000, "num2": 2000000000000000},
+        "expected_result": 3000000000000000,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "very_small_numbers",
+        "input": {"num1": 0.000001, "num2": 0.000002},
+        "expected_result": 0.000003,
+        "expected_operation": "addition",
+        "expected_server_type": "remote"
+      }
+    ],
+    "error_cases": [
+      {
+        "name": "infinity_first_operand",
+        "input": {"num1": "Infinity", "num2": 5.5},
+        "expected_error": "Failed to add numbers",
+        "expected_details": "Both inputs must be finite numbers",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "infinity_second_operand",
+        "input": {"num1": 7.2, "num2": "Infinity"},
+        "expected_error": "Failed to add numbers",
+        "expected_details": "Both inputs must be finite numbers",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "negative_infinity",
+        "input": {"num1": "-Infinity", "num2": 5.5},
+        "expected_error": "Failed to add numbers",
+        "expected_details": "Both inputs must be finite numbers",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "nan_first_operand",
+        "input": {"num1": "NaN", "num2": 5.5},
+        "expected_error": "Failed to add numbers",
+        "expected_details": "Both inputs must be finite numbers",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "nan_second_operand",
+        "input": {"num1": 3.14, "num2": "NaN"},
+        "expected_error": "Failed to add numbers",
+        "expected_details": "Both inputs must be finite numbers",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "both_infinity",
+        "input": {"num1": "Infinity", "num2": "Infinity"},
+        "expected_error": "Failed to add numbers",
+        "expected_details": "Both inputs must be finite numbers",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "null_values",
+        "input": {"num1": null, "num2": 5.5},
+        "expected_error": "Failed to add numbers",
+        "expected_server_type": "remote"
+      },
+      {
+        "name": "string_values",
+        "input": {"num1": "not_a_number", "num2": 5.5},
+        "expected_error": "Failed to add numbers",
+        "expected_server_type": "remote"
+      }
+    ],
+    "api_endpoints": [
+      {
+        "endpoint": "/",
+        "method": "GET",
+        "expected_status": 200,
+        "expected_content": {
+          "name": "Calculator MCP Remote Server",
+          "version": "1.0.0",
+          "description": "Remote MCP server for adding two numbers",
+          "tools": ["addNumbers"]
+        }
+      },
+      {
+        "endpoint": "/health",
+        "method": "GET", 
+        "expected_status": 200,
+        "expected_content": {
+          "status": "healthy",
+          "server": "calculator-mcp-remote"
+        }
+      },
+      {
+        "endpoint": "/sse",
+        "method": "GET",
+        "expected_status": 200,
+        "expected_content_type": "text/event-stream"
+      },
+      {
+        "endpoint": "/invalid",
+        "method": "GET",
+        "expected_status": 404
+      }
+    ],
+    "server_configuration": {
+      "default_host": "localhost",
+      "default_port": 8000,
+      "supported_transports": ["stdio", "http", "sse"],
+      "cors_enabled": true,
+      "log_levels": ["DEBUG", "INFO", "WARNING", "ERROR"]
+    }
+  }
+}
