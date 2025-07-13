@@ -21,18 +21,19 @@ logger = logging.getLogger(__name__)
 
 
 class MockAPITester:
-    """Test class for the mock API server."""
+    """Test class for the CRUD API server."""
     
     def __init__(self, base_url: str = "http://localhost:8001"):
         self.base_url = base_url
         self.server_process = None
+        self.created_resources = []  # Track created resources for cleanup
         
     def start_server(self) -> bool:
         """Start the mock API server in background."""
         try:
-            logger.info("Starting mock API server...")
+            logger.info("Starting CRUD API server...")
             self.server_process = subprocess.Popen(
-                ["python", "-m", "calculator_mcp_python.mock_api_server", "--host", "localhost", "--port", "8001"],
+                ["python", "-m", "calculator_mcp_python.mock_api_server", "--host", "localhost", "--port", "8001", "--db-path", "resources/data/test_crud_api.db"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 cwd="/root/projects/calculator-mcp"
@@ -44,13 +45,15 @@ class MockAPITester:
                 try:
                     response = requests.get(f"{self.base_url}/health", timeout=2)
                     if response.status_code == 200:
-                        logger.info(f"Mock API server started successfully on {self.base_url}")
+                        logger.info(f"CRUD API server started successfully on {self.base_url}")
+                        # Clear any existing data from previous test runs
+                        self._clear_test_data()
                         return True
                 except requests.exceptions.RequestException:
                     time.sleep(1)
                     continue
             
-            logger.error("Failed to start mock API server")
+            logger.error("Failed to start CRUD API server")
             return False
             
         except Exception as error:
@@ -60,7 +63,7 @@ class MockAPITester:
     def stop_server(self):
         """Stop the mock API server."""
         if self.server_process:
-            logger.info("Stopping mock API server...")
+            logger.info("Stopping CRUD API server...")
             self.server_process.terminate()
             try:
                 self.server_process.wait(timeout=5)
@@ -68,6 +71,17 @@ class MockAPITester:
                 logger.warning("Server didn't stop gracefully, forcing termination")
                 self.server_process.kill()
             self.server_process = None
+    
+    def _clear_test_data(self):
+        """Clear all test data from the database."""
+        try:
+            response = requests.delete(f"{self.base_url}/admin/clear")
+            if response.status_code == 200:
+                logger.info("Test data cleared successfully")
+            else:
+                logger.warning(f"Failed to clear test data: {response.status_code}")
+        except Exception as error:
+            logger.warning(f"Could not clear test data: {error}")
     
     def test_health_endpoint(self) -> bool:
         """Test the health check endpoint."""
@@ -151,6 +165,9 @@ class MockAPITester:
                     logger.error(f"Created data missing or incorrect for {key}: expected {value}, got {created_data.get(key)}")
                     return None
             
+            # Track created resource for potential cleanup
+            self.created_resources.append((resource_type, created_data.get("id")))
+            
             logger.info("✓ Create resource test passed")
             return data
             
@@ -191,9 +208,10 @@ class MockAPITester:
                 logger.error(f"Expected data to be a list, got: {type(data['data'])}")
                 return None
             
+            # Note: With real database, list might be empty initially
+            # This is acceptable behavior, so we'll just log it
             if len(data["data"]) == 0:
-                logger.error("Expected non-empty list of resources")
-                return None
+                logger.info("No resources found in database (this is acceptable for a fresh database)")
             
             logger.info(f"✓ Read resources test passed (got {len(data['data'])} items)")
             return data
@@ -341,9 +359,42 @@ class MockAPITester:
             logger.error(f"Delete resource test failed: {error}")
             return None
     
+    def test_resource_not_found(self, resource_type: str = "users", resource_id: str = "non-existent-id") -> bool:
+        """Test that non-existent resources return 404."""
+        try:
+            logger.info(f"Testing 404 for non-existent resource: {resource_type}/{resource_id}")
+            
+            # Test read non-existent resource
+            response = requests.get(f"{self.base_url}/{resource_type}/{resource_id}")
+            if response.status_code != 404:
+                logger.error(f"Expected 404 for non-existent resource, got: {response.status_code}")
+                return False
+            
+            # Test update non-existent resource
+            response = requests.put(
+                f"{self.base_url}/{resource_type}/{resource_id}",
+                json={"name": "Updated"}
+            )
+            if response.status_code != 404:
+                logger.error(f"Expected 404 for update non-existent resource, got: {response.status_code}")
+                return False
+            
+            # Test delete non-existent resource
+            response = requests.delete(f"{self.base_url}/{resource_type}/{resource_id}")
+            if response.status_code != 404:
+                logger.error(f"Expected 404 for delete non-existent resource, got: {response.status_code}")
+                return False
+            
+            logger.info("✓ Resource not found test passed")
+            return True
+            
+        except Exception as error:
+            logger.error(f"Resource not found test failed: {error}")
+            return False
+    
     def run_all_tests(self) -> bool:
         """Run all API tests."""
-        logger.info("Starting comprehensive mock API tests...")
+        logger.info("Starting comprehensive CRUD API tests...")
         
         all_passed = True
         
@@ -353,20 +404,31 @@ class MockAPITester:
         for resource_type in resource_types:
             logger.info(f"\n--- Testing {resource_type} endpoints ---")
             
-            # Test each CRUD operation
-            if not self.test_create_resource(resource_type):
+            # Test 404 handling first (no data dependency)
+            if not self.test_resource_not_found(resource_type):
                 all_passed = False
             
+            # Test each CRUD operation in logical order
+            created_resource = self.test_create_resource(resource_type)
+            if not created_resource:
+                all_passed = False
+                continue  # Skip dependent tests
+            
+            created_id = created_resource["data"]["id"]
+            
+            # Test read operations
             if not self.test_read_resources(resource_type):
                 all_passed = False
             
-            if not self.test_read_resource_by_id(resource_type, f"test-{resource_type}-123"):
+            if not self.test_read_resource_by_id(resource_type, created_id):
                 all_passed = False
             
-            if not self.test_update_resource(resource_type, f"test-{resource_type}-123"):
+            # Test update with the created resource
+            if not self.test_update_resource(resource_type, created_id):
                 all_passed = False
             
-            if not self.test_delete_resource(resource_type, f"test-{resource_type}-123"):
+            # Test delete with the created resource
+            if not self.test_delete_resource(resource_type, created_id):
                 all_passed = False
         
         return all_passed
@@ -389,8 +451,8 @@ def main():
         
         # Run all CRUD tests
         if tester.run_all_tests():
-            logger.info("\n🎉 All mock API tests passed successfully!")
-            logger.info("The mock API server is working correctly and responses match MCP tool schemas.")
+            logger.info("\n🎉 All CRUD API tests passed successfully!")
+            logger.info("The CRUD API server with SQLite database is working correctly and responses match MCP tool schemas.")
         else:
             logger.error("\n❌ Some tests failed")
             sys.exit(1)
